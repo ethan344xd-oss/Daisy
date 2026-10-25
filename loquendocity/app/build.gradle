@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'app'
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation('com.badlogicgames.jamepad:jamepad:2.0.14.0') {
+        exclude group: 'com.badlogicgames.gdx', module: 'gdx-jnigen-loader'
+    }
+    implementation 'com.badlogicgames.gdx:gdx-jnigen-loader:2.5.2'
+}
+application {
+    mainClass = 'loquendocity.loquendocity'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// Jar con todas las dependencias (incluye las librerías nativas de SDL) para abrirlo con doble clic
+tasks.register('fatJar', Jar) {
+    group = 'build'
+    archiveClassifier = 'todo'
+    manifest {
+        attributes 'Main-Class': 'loquendocity.loquendocity'
+    }
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    with jar
+}
